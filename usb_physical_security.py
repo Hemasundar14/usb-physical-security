@@ -1,11 +1,13 @@
 import tkinter as tk
+from tkinter import messagebox
 import os
 import ctypes
 import getpass
 import winreg
+import webbrowser
 import time
 import string
-
+import sys
 # ✅ Check for admin rights
 def is_admin():
     try:
