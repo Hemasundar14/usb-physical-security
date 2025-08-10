@@ -6,7 +6,6 @@ import os
 import ctypes
 import winreg
 import webbrowser
-import base64
 import sys
 
 # ✅ Registry Functions
@@ -56,6 +55,7 @@ class USBPhysicalSecurityApp:
 
         self.usb_enabled = True
         self.is_processing = False
+        self.can_enable = False
 
         self.info_button = tk.Button(root, text="Project Info", bg="red", fg="white",
                                      font=("Helvetica", 12, "bold"), command=self.show_info)
@@ -69,8 +69,7 @@ class USBPhysicalSecurityApp:
                                      fg="lime", bg="black")
         self.status_label.pack(pady=5)
 
-        self.process_label = tk.Label(root, text="", font=("Helvetica", 11),
-                                      fg="white", bg="black")
+        self.process_label = tk.Label(root, text="", font=("Helvetica", 11), fg="white", bg="black")
         self.process_label.pack(pady=2)
 
         self.button_frame = tk.Frame(root, bg="black")
@@ -81,103 +80,78 @@ class USBPhysicalSecurityApp:
         self.disable_button.pack(pady=10)
 
         self.enable_button = tk.Button(self.button_frame, text="Enable USB", bg="green", fg="white",
-                                       font=("Helvetica", 12), width=20, command=self.enable_usb, state="disabled")
+                                       font=("Helvetica", 12), width=20, command=self.enable_usb)
         self.enable_button.pack(pady=10)
 
         threading.Thread(target=self.monitor_usb, daemon=True).start()
 
     def show_info(self):
         html_path = os.path.join(os.getcwd(), "project_info.html")
-        html_content = """
-<!DOCTYPE html>
-<html lang="en">
+        html_content = '''<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>USB Physical Security - Project Info</title>
+  <title>Project Information - USB Physical Security</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
       margin: 40px;
+      background-color: #f8f8f8;
     }
     .container {
       background: white;
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      position: relative;
-    }
-    .logo {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      height: 60px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     h2 {
       margin-top: 0;
-      font-size: 26px;
+    }
+    .logo {
+      float: right;
+      height: 60px;
     }
     table {
-      width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      width: 100%;
+      margin: 20px 0;
     }
     th, td {
-      border: 1px solid #555;
+      border: 1px solid #333;
       padding: 10px;
       text-align: left;
     }
     th {
       background-color: #ddd;
     }
+    .bold {
+      font-weight: bold;
+    }
     .section-title {
       margin-top: 30px;
-      font-size: 20px;
-      font-weight: bold;
-      border-bottom: 2px solid #333;
-      padding-bottom: 5px;
+      font-size: 18px;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
-      <img src="images.png" alt="Logo" class="logo">
-    </a>
-
-    <h2>Project Information</h2>
-    <p>
-      This project was developed by <strong>R.Hemasundar</strong> and <strong>Manohar</strong> as part of a <strong>Cyber Security Internship</strong>.<br>
-      The project aims to <strong>secure organizations from cyber frauds performed by hackers</strong> using physical USB security.
-    </p>
-
+    <img src="logo_supraja.png" alt="Supraja Logo" class="logo">
+    <h2>Project information</h2>
+    <p>This project was developed by <span class="bold">R.Hemasundar</span> and <span class="bold">Manohar</span> as a part of <span class="bold">cyber security internship</span>. This project is designed to <span class="bold">secure the organizations in real world from cyber frauds performed by hackers.</span></p>
     <div class="section-title">Project Details</div>
     <table>
       <tr><th>Project Name</th><td>USB PHYSICAL SECURITY</td></tr>
-      <tr><th>Project Description</th><td>Implementing physical security policy on USB ports in organization for physical security.</td></tr>
+      <tr><th>Project Description</th><td>Implementing physical security policy on usb ports in organization for physical security.</td></tr>
       <tr><th>Project Start Date</th><td>12-July-2025</td></tr>
       <tr><th>Project End Date</th><td>14-August-2025</td></tr>
-      <tr><th>Project Status</th><td>Completed</td></tr>
+      <tr><th>Project Status</th><td><span class="bold">Completed</span></td></tr>
     </table>
-
     <div class="section-title">Developer Details</div>
     <table>
-      <tr>
-        <th>Name</th>
-        <th>Employee ID</th>
-        <th>Email</th>
-      </tr>
-      <tr>
-        <td>Hemasundar</td>
-        <td>ST#IS#7525</td>
-        <td>sundarstark14@gmail.com</td>
-      </tr>
-      <tr>
-        <td>Manohar</td>
-        <td>ST#IS#7561</td>
-        <td>manoharmuttamala@gmail.com</td>
-      </tr>
+      <tr><th>Name</th><th>Employee ID</th><th>Email</th></tr>
+      <tr><td>Hemasundar</td><td>ST#IS#7525</td><td>sundarstark14@gmail.com</td></tr>
+      <tr><td>Manohar</td><td>ST#IS#7561</td><td>manoharmuttamala@gmail.com</td></tr>
     </table>
-
     <div class="section-title">Company Details</div>
     <table>
       <tr><th>Company</th><th>Value</th></tr>
@@ -186,8 +160,7 @@ class USBPhysicalSecurityApp:
     </table>
   </div>
 </body>
-</html>
-"""
+</html>'''
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
         webbrowser.open(f"file://{html_path}")
@@ -216,22 +189,23 @@ class USBPhysicalSecurityApp:
             disable_usb_ports()
         self.usb_enabled = enable
         self.is_processing = False
+        self.can_enable = False
         self.update_ui()
 
     def disable_usb(self):
         threading.Thread(target=self.simulate_action, args=(False,), daemon=True).start()
 
     def enable_usb(self):
+        if not self.can_enable:
+            messagebox.showwarning("Access Denied", "Please insert USB and pass password first.")
+            return
+
         def check_password():
             entered = password_entry.get()
             if entered == "admin123":
-                messagebox.showinfo("Access Granted", "Correct password. USB will be enabled.")
-                enable_usb_ports()
-                self.usb_enabled = True
-                self.update_ui()
+                messagebox.showinfo("Access Granted", "Correct password. Enabling USB.")
+                threading.Thread(target=self.simulate_action, args=(True,), daemon=True).start()
                 password_window.destroy()
-                encoded = base64.b64encode(entered.encode()).decode()
-                messagebox.showinfo("Encoded Password", f"Base64 Encoded: {encoded}")
             else:
                 messagebox.showwarning("Access Denied", "Incorrect password.")
                 disable_usb_ports()
@@ -264,17 +238,19 @@ class USBPhysicalSecurityApp:
             current_drives = get_connected_drives()
             new_drives = current_drives - prev_drives
             if new_drives:
-                password = simpledialog.askstring("USB Access", "Enter password to allow USB:", show='*')
-                if password != "admin123":
-                    messagebox.showwarning("Access Denied", "Wrong password. Blocking USB access.")
-                    disable_usb_ports()
-                    self.usb_enabled = False
-                else:
-                    messagebox.showinfo("Access Granted", "Correct password. USB remains enabled.")
-                    enable_usb_ports()
-                    self.usb_enabled = True
-                self.update_ui()
+                self.root.after(0, self.ask_usb_password)
             prev_drives = current_drives
+
+    def ask_usb_password(self):
+        password = simpledialog.askstring("USB Access", "Enter password to allow USB:", show='*')
+        if password == "admin123":
+            messagebox.showinfo("Access Granted", "Correct password. Now click 'Enable USB' to proceed.")
+            self.can_enable = True
+        else:
+            messagebox.showwarning("Access Denied", "Wrong password. USB access blocked.")
+            disable_usb_ports()
+            self.usb_enabled = False
+        self.update_ui()
 
 # ✅ Run App
 if __name__ == "__main__":
